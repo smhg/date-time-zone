@@ -1,4 +1,5 @@
 # date-modify
+Modify date and time
 
 ```javascript
 modify(date, 'midnight') // strtotime
