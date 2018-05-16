@@ -1,11 +1,9 @@
 # date-modify
-Modify date and time
+Date and time manipulation
 
 ```javascript
-modify(date, 'midnight') // strtotime
-modify(date, createDuration('P1D')) // date-duration
-
-// aliases
-add(date, 1, 'year') // modify(date, '+1 year')
-subtract(date, 1, 'year') // modify(date, '-1 year')
+modify(date, 'midnight') // set time to 00:00:00
+modify(date, 'midnight')
+add(date, createDuration('P1D')) // date-duration
+subtract(date, createDuration('P1D')) // date-duration
 ```
