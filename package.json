@@ -1,9 +1,10 @@
 {
   "name": "date-modify",
   "version": "0.1.0",
-  "description": "Modify date and time",
+  "description": "Date and time manipulation",
   "main": "index.js",
   "scripts": {
+    "lint": "eslint index.js test",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -16,5 +17,13 @@
   "bugs": {
     "url": "https://github.com/smhg/date-modify/issues"
   },
-  "homepage": "https://github.com/smhg/date-modify#readme"
+  "homepage": "https://github.com/smhg/date-modify#readme",
+  "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-plugin-import": "^2.11.0",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-promise": "^3.7.0",
+    "eslint-plugin-standard": "^3.1.0"
+  }
 }
