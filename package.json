@@ -2,11 +2,11 @@
   "name": "date-modify",
   "version": "0.1.0",
   "description": "Date and time manipulation",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "lint": "eslint index.js test",
-    "test-timezone1": "export TZ=Europe/Brussels && mocha --require babel-core/register test",
-    "test-timezone2": "export TZ=America/New_York && mocha --require babel-core/register test",
+    "test-timezone1": "export TZ=Europe/Brussels && export NODE_ICU_DATA=node_modules/full-icu && mocha --require babel-core/register test",
+    "test-timezone2": "export TZ=America/New_York && export NODE_ICU_DATA=node_modules/full-icu && mocha --require babel-core/register test",
     "test": "npm run test-timezone1 && npm run test-timezone2"
   },
   "repository": {
@@ -30,6 +30,7 @@
     "eslint-plugin-node": "^6.0.1",
     "eslint-plugin-promise": "^3.7.0",
     "eslint-plugin-standard": "^3.1.0",
+    "full-icu": "^1.2.1",
     "mocha": "^5.1.1"
   }
 }
