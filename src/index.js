@@ -1,4 +1,4 @@
-import {getOffset, relativeFormats} from './util';
+import {getOffset, dateParts, relativeFormats} from './util';
 
 let defaultTimeZone = 'UTC';
 
@@ -10,10 +10,11 @@ export default function modify (date, action, timeZone = defaultTimeZone) {
   let clone = new Date(+date);
 
   if (relativeFormats.has(action)) {
+    const dateOffset = getOffset(date, timeZone);
     relativeFormats.get(action)(clone, timeZone);
-
-    if (getOffset(date, timeZone) !== getOffset(clone, timeZone)) {
-      throw new Error('Timezone changed during modification');
+    const cloneOffset = getOffset(clone, timeZone);
+    if (dateOffset !== cloneOffset) {
+      throw new Error(`Timezone changed during modification (${dateOffset} became ${cloneOffset})`);
     }
   }
 

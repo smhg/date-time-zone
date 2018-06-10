@@ -13,7 +13,7 @@ describe('modify()', () => {
     date = new Date(Date.UTC(2018, 2, 25, 20, 52, 16));
 
     assert.equal(+modify(date, 'midnight'), Date.UTC(2018, 2, 25, 0, 0, 0));
-    assert.equal(+modify(date, 'midnight', 'Europe/Brussels'), Date.UTC(2018, 4, 15, 0, 0, 0));
+    assert.equal(+modify(date, 'midnight', 'Europe/Brussels'), Date.parse('2018-03-25 00:00:00+01:00'));
   });
 });
 

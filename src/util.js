@@ -1,16 +1,17 @@
+import createDuration from 'date-duration';
+
 export function getOffset (date, timeZone) {
   const formatter = new Intl.DateTimeFormat('en', {
     timeZone,
     timeZoneName: 'short'
   });
 
-  return (new Map(
-    formatter.formatToParts(date).map(({type, value}) => [type, value])
-  ))
-    .get('timeZoneName');
+  return formatter.formatToParts(date)
+    .find(({type}) => type === 'timeZoneName')
+    .value;
 }
 
-function dateParts (date, timeZone) {
+export function dateParts (date, timeZone) {
   const formatter = new Intl.DateTimeFormat('en', {
     hour12: false,
     timeZone,
@@ -36,6 +37,12 @@ function set (date, part, diff) {
     case 'year':
       date.setUTCFullYear(date.getUTCFullYear() + diff);
       break;
+    case 'month':
+      date.setUTCMonth(date.getUTCMonth() + diff);
+      break;
+    case 'day':
+      date.setUTCDate(date.getUTCDate() + diff);
+      break;
     case 'hour':
       date.setUTCHours(date.getUTCHours() + diff);
       break;
@@ -51,17 +58,46 @@ function set (date, part, diff) {
 }
 
 function midnight (date, timeZone) {
-  const parts = dateParts(date, timeZone);
+  const {year, month, day, ...time} = dateParts(date, timeZone);
+console.log(time);
+  // const diff = {
+  //   hour: oldParts.hour,
+  //   minute: oldParts.minute,
+  //   second: oldParts.second
+  // };
 
-  return set(
-    set(
-      set(date, 'second', 0 - parts.second),
-      'minute',
-      0 - parts.minute
-    ),
-    'hour',
-    0 - parts.hour
-  );
+  // date.setUTCHours(date.getUTCHours() - oldParts.hour);
+  // date.setUTCMinutes(date.getUTCMinutes() - oldParts.minute);
+  // date.setUTCSeconds(date.getUTCSeconds() - oldParts.second);
+
+  // const duration = createDuration({P: {T: {H: diff.hour, M: diff.minute, S: diff.second}}});
+
+  // // TODO:
+  // const result = duration.subtractFrom(date);
+
+  // const newParts = dateParts(date, timeZone);
+
+  // compare(diff, {
+  //   hour: newParts.hour,
+  //   minute: newParts.minute,
+  //   second: newParts.second
+  // });
+
+  // date = set(
+  //   set(
+  //     set(date, 'second', -oldParts.second),
+  //     'minute',
+  //     -oldParts.minute
+  //   ),
+  //   'hour',
+  //   -oldParts.hour
+  // );
+
+  // const newParts = dateParts(date, timeZone);
+
+  // console.log(oldParts, newParts);
+
+  return date;
 }
 
 export const relativeFormats = new Map([
