@@ -4,10 +4,9 @@ export function getOffset (date, timeZone) {
     timeZoneName: 'short'
   });
 
-  return (new Map(
-    formatter.formatToParts(date).map(({type, value}) => [type, value])
-  ))
-    .get('timeZoneName');
+  return formatter.formatToParts(date)
+    .find(({type, value}) => type === 'timeZoneName')
+    .value;
 }
 
 function dateParts (date, timeZone) {
