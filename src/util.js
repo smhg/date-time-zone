@@ -5,7 +5,7 @@ export function getOffset (date, timeZone) {
   });
 
   return formatter.formatToParts(date)
-    .find(({type, value}) => type === 'timeZoneName')
+    .find(({ type, value }) => type === 'timeZoneName')
     .value;
 }
 
@@ -22,8 +22,8 @@ function dateParts (date, timeZone) {
   });
 
   return formatter.formatToParts(date)
-    .filter(({type}) => type !== 'literal')
-    .reduce((parts, {type, value}) => {
+    .filter(({ type }) => type !== 'literal')
+    .reduce((parts, { type, value }) => {
       parts[type] = parseInt(value, 10);
 
       return parts;

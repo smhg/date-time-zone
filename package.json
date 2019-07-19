@@ -4,7 +4,7 @@
   "description": "Date and time manipulation",
   "main": "src/index.js",
   "scripts": {
-    "lint": "eslint index.js test",
+    "lint": "eslint src test",
     "test-timezone1": "export TZ=Europe/Brussels && export NODE_ICU_DATA=node_modules/full-icu && mocha --require babel-core/register test",
     "test-timezone2": "export TZ=America/New_York && export NODE_ICU_DATA=node_modules/full-icu && mocha --require babel-core/register test",
     "test": "npm run test-timezone1 && npm run test-timezone2"
