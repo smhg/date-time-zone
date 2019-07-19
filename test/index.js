@@ -1,40 +1,38 @@
-import modify, { add, subtract, setDefaultTimeZone } from '../src';
-import createDuration from 'date-duration';
+import { useTimeZone, getTzTime } from '../src';
 import assert from 'assert';
 
-describe('modify()', () => {
+const timeZone = 'Europe/Brussels';
+const useBrussels = (...args) => useTimeZone(timeZone, ...args);
+
+describe('test()', () => {
   it('should', () => {
-    let date = new Date(Date.UTC(2018, 4, 15, 20, 52, 16));
+    const date = new Date(2019, 9, 30, 10, 20, 30);
+    useBrussels(date, 'setUTCHours', 0, 0, 0, 0);
+    const [, hour, minute] = getTzTime(date, timeZone);
 
-    assert.strictEqual(+modify(date, 'midnight'), Date.UTC(2018, 4, 15, 0, 0, 0));
-    assert.strictEqual(+modify(date, 'midnight', 'Europe/Brussels'), Date.parse('2018-05-15 00:00:00+02:00'));
-
-    // accross DST
-    date = new Date(Date.UTC(2018, 2, 25, 20, 52, 16));
-
-    assert.strictEqual(+modify(date, 'midnight'), Date.UTC(2018, 2, 25, 0, 0, 0));
-    assert.strictEqual(+modify(date, 'midnight', 'Europe/Brussels'), Date.UTC(2018, 4, 15, 0, 0, 0));
+    assert.strictEqual(hour, 0);
+    assert.strictEqual(minute, 0);
   });
-});
 
-describe('add()', () => {
   it('should', () => {
-    const date = new Date(Date.UTC(2018, 4, 14, 20, 52, 16));
+    const now = new Date(2019, 9, 30, 10, 20, 30);
+    const midnight = new Date(useBrussels(new Date(now), 'setUTCHours', 0, 0, 0, 0));
+    const startOfMonth = new Date(useBrussels(new Date(midnight), 'setUTCDate', 1));
+    const [day, hour, minute] = getTzTime(startOfMonth, timeZone);
 
-    assert.strictEqual(+add(date, createDuration('P1D')), Date.UTC(2018, 4, 15, 20, 52, 16));
+    assert.strictEqual(day, 1);
+    assert.strictEqual(hour, 0);
+    assert.strictEqual(minute, 0);
   });
-});
 
-describe('subtract()', () => {
   it('should', () => {
-    const date = new Date(Date.UTC(2018, 4, 14, 20, 52, 16));
+    const now = new Date(2019, 9, 30, 10, 20, 30);
+    const noon = new Date(useBrussels(new Date(now), 'setUTCHours', 12, 0));
+    const startOfYear = new Date(useBrussels(new Date(noon), 'setUTCMonth', 0, 1));
+    const [day, hour, minute] = getTzTime(startOfYear, timeZone);
 
-    assert.strictEqual(+subtract(date, createDuration('P1D')), Date.UTC(2018, 4, 13, 20, 52, 16));
-  });
-});
-
-describe('setDefaultTimeZone()', () => {
-  it('should use the default format', () => {
-    setDefaultTimeZone('Europe/Brussels');
+    assert.strictEqual(day, 1);
+    assert.strictEqual(hour, 12);
+    assert.strictEqual(minute, 0);
   });
 });
