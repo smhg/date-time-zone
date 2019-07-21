@@ -1,16 +1,17 @@
 const DATE_PARTS = ['year', 'month', 'day', 'weekday', 'hour', 'minute', 'second', 'millisecond'];
 
-const HOUR = 60 * 60 * 1000;
-const MINUTE = 60 * 1000;
 const formatter = {};
 
-export function getTzTime (date, timeZone) {
+export function getTzValues (date, timeZone) {
   formatter[timeZone] = formatter[timeZone] || new Intl.DateTimeFormat('en-US', {
     timeZone,
     hour12: false,
+    year: 'numeric',
+    month: 'numeric',
     day: 'numeric',
     hour: 'numeric',
-    minute: 'numeric'
+    minute: 'numeric',
+    second: 'numeric'
   });
 
   const parts = new Map(
@@ -22,15 +23,17 @@ export function getTzTime (date, timeZone) {
       )
   );
 
-  if (parts.size !== 3) {
+  parts.set('millisecond', date.getMilliseconds());
+
+  if (parts.size !== 7) {
     throw new Error(`Unable to retrieve full date for timezone '${timeZone}')`);
   }
 
-  return Array.from(parts.values());
+  return parts;
 }
 
 export function useTimeZone (timeZone, date, method, ...args) {
-  let [day, hour, minute] = getTzTime(date, timeZone);
+  let [day, hour, minute] = getTzValues(date, timeZone);
 
   switch (method) {
     case 'setUTCFullYear':
@@ -55,10 +58,47 @@ export function useTimeZone (timeZone, date, method, ...args) {
   date[method](...args);
 
   // fixup day, hour, minute (if necessary)
-  const [newDay, newHour, newMinute] = getTzTime(date, timeZone);
+  const [newDay, newHour, newMinute] = getTzValues(date, timeZone);
   date.setUTCDate(date.getUTCDate() + (day - newDay));
   date.setUTCHours(date.getUTCHours() + (hour - newHour));
   date.setUTCMinutes(date.getUTCMinutes() + (minute - newMinute));
 
   return +date;
 };
+
+const WRAP_SETTERS = ['setDate', 'setFullYear', 'setHours', 'setMinutes', 'setMonth'];
+
+export function createDate (...args) {
+  let timeZone;
+
+  if (typeof args[args.length - 1] === 'object') {
+    timeZone = args.splice(-1, 1)[0].timeZone;
+  }
+
+  return new Proxy(new Date(...args), {
+    get: function (date, prop, rec) {
+      console.log(date, prop, typeof date[prop]);
+      if (typeof date[prop] === 'function') {
+        if (!timeZone || !WRAP_SETTERS.includes(prop)) {
+          console.log('crit', date, prop);
+          return date[prop].bind(date);
+        }
+
+        return new Proxy(date[prop], {
+          apply: function (fn, proxy, args) {
+
+
+
+            // HIER IS date al Invalid Date! (vlak voor setHours)
+
+
+
+            return fn.bind(date)(args);
+          }
+        });
+      }
+
+      return Reflect.get(...arguments);
+    }
+  });
+}
