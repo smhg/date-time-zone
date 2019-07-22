@@ -60,10 +60,11 @@ export function createDate (...args) {
 
   let date;
 
-  if (args.length === 1) {
+  if (args.length <= 1) {
+    // format: new Date()
     // format: new Date(value)
     // format: new Date(dateString)
-    date = new Date(args[0]);
+    date = new Date(...args);
   } else {
     // format: new Date(year, monthIndex [, day [, hours [, minutes [, seconds [, milliseconds]]]]])
     date = new Date(Date.UTC(...args));
