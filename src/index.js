@@ -2,7 +2,7 @@ const DATE_PARTS = ['year', 'month', 'day', 'weekday', 'hour', 'minute', 'second
 
 const formatter = {};
 
-export function getTzValues (date, timeZone) {
+function getTzValues (date, timeZone) {
   formatter[timeZone] = formatter[timeZone] || new Intl.DateTimeFormat('en-US', {
     timeZone,
     hour12: false,
@@ -23,77 +23,81 @@ export function getTzValues (date, timeZone) {
       )
   );
 
-  parts.set('millisecond', date.getMilliseconds());
-
-  if (parts.size !== 7) {
+  if (parts.size !== 6) {
     throw new Error(`Unable to retrieve full date for timezone '${timeZone}')`);
   }
 
-  return parts;
+  parts.set('month', parts.get('month') - 1);
+  parts.set('millisecond', date.getMilliseconds());
+
+  return Array.from(parts.values());
 }
 
-export function useTimeZone (timeZone, date, method, ...args) {
-  let [day, hour, minute] = getTzValues(date, timeZone);
+const WRAP_SETTERS = ['setFullYear', 'setMonth', 'setDate', 'setHours', 'setMinutes', 'setSeconds', 'setMilliseconds'];
 
-  switch (method) {
-    case 'setUTCFullYear':
-      day = args.length > 2 ? args[2] : day;
-      break;
-    case 'setUTCMonth':
-      day = args.length > 1 ? args[1] : day;
-      break;
-    case 'setUTCDate':
-      day = args[0];
-      break;
-    case 'setUTCHours':
-      hour = args[0];
-      minute = args.length > 1 ? args[1] : minute;
-      break;
-    case 'setUTCMinutes':
-      minute = args[0];
-      break;
-  }
-
-  // regular method gets us within 1 day (before/after)
-  date[method](...args);
-
-  // fixup day, hour, minute (if necessary)
-  const [newDay, newHour, newMinute] = getTzValues(date, timeZone);
-  date.setUTCDate(date.getUTCDate() + (day - newDay));
-  date.setUTCHours(date.getUTCHours() + (hour - newHour));
-  date.setUTCMinutes(date.getUTCMinutes() + (minute - newMinute));
-
-  return +date;
-};
-
-const WRAP_SETTERS = ['setDate', 'setFullYear', 'setHours', 'setMinutes', 'setMonth'];
+function utcToLocal (date, timeZone) {
+  const tzValues = getTzValues(date, 'UTC');
+  const currentValues = getTzValues(date, timeZone);
+  const utcValues = tzValues.map((value, idx) => value + (value - currentValues[idx]));
+  date.setUTCFullYear(...utcValues.slice(0, 3));
+  date.setUTCHours(...utcValues.slice(3));
+}
 
 export function createDate (...args) {
-  let timeZone;
-
-  if (typeof args[args.length - 1] === 'object') {
-    timeZone = args.splice(-1, 1)[0].timeZone;
+  if (args.length === 0) {
+    return new Date();
   }
 
-  return new Proxy(new Date(...args), {
-    get: function (date, prop, rec) {
-      console.log(date, prop, typeof date[prop]);
+  const options = { locale: 'en-US' };
+
+  if (typeof args[args.length - 1] === 'object') {
+    Object.assign(options, args.pop());
+  }
+
+  if (!options.timeZone) {
+    return new Date(...args);
+  }
+
+  let date;
+
+  if (args.length === 1) {
+    // format: new Date(value)
+    // format: new Date(dateString)
+    date = new Date(args[0]);
+  } else {
+    // format: new Date(year, monthIndex [, day [, hours [, minutes [, seconds [, milliseconds]]]]])
+    date = new Date(Date.UTC(...args));
+    utcToLocal(date, options.timeZone);
+  }
+
+  return new Proxy(date, {
+    get: function (date, prop) {
       if (typeof date[prop] === 'function') {
-        if (!timeZone || !WRAP_SETTERS.includes(prop)) {
-          console.log('crit', date, prop);
+        if (!options.timeZone || (prop !== 'toString' && !WRAP_SETTERS.includes(prop))) {
           return date[prop].bind(date);
+        }
+
+        if (prop === 'toString') {
+          return () => {
+            return date.toLocaleString(options.locale, {
+              timeZone: options.timeZone,
+              hour12: false
+            });
+          };
         }
 
         return new Proxy(date[prop], {
           apply: function (fn, proxy, args) {
+            const idx = WRAP_SETTERS.indexOf(prop);
+            const utcValues = getTzValues(date, options.timeZone);
 
+            utcValues.splice(idx, args.length, ...args);
+            date.setUTCFullYear(...utcValues.slice(0, 3));
+            date.setUTCHours(...utcValues.slice(3));
 
+            utcToLocal(date, options.timeZone);
 
-            // HIER IS date al Invalid Date! (vlak voor setHours)
-
-
-
-            return fn.bind(date)(args);
+            return +date;
           }
         });
       }
