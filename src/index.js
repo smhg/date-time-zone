@@ -1,9 +1,10 @@
-const DATE_PARTS = ['year', 'month', 'day', 'weekday', 'hour', 'minute', 'second', 'millisecond'];
+const DATE_PARTS = ['year', 'month', 'day', 'hour', 'minute', 'second', 'millisecond'];
+const WRAP_SETTERS = ['setFullYear', 'setMonth', 'setDate', 'setHours', 'setMinutes', 'setSeconds', 'setMilliseconds'];
 
 const formatter = {};
 
-function getTzValues (date, timeZone) {
-  formatter[timeZone] = formatter[timeZone] || new Intl.DateTimeFormat('en-US', {
+function getFormatter (timeZone) {
+  return formatter[timeZone] || new Intl.DateTimeFormat('en-US', {
     timeZone,
     hour12: false,
     year: 'numeric',
@@ -13,11 +14,18 @@ function getTzValues (date, timeZone) {
     minute: 'numeric',
     second: 'numeric'
   });
+}
+
+function getTzValues (date, timeZone) {
+  const valueFormatter = getFormatter(timeZone);
 
   const parts = new Map(
-    formatter[timeZone].formatToParts(date)
+    valueFormatter.formatToParts(date)
       .filter(({ type }) => DATE_PARTS.indexOf(type) >= 0)
-      .sort((left, right) => DATE_PARTS.indexOf(left.type) - DATE_PARTS.indexOf(right.type))
+      .sort(
+        (left, right) =>
+          DATE_PARTS.indexOf(left.type) - DATE_PARTS.indexOf(right.type)
+      )
       .map(
         ({ type, value }) => [type, parseInt(value, 10)]
       )
@@ -33,17 +41,16 @@ function getTzValues (date, timeZone) {
   return Array.from(parts.values());
 }
 
-const WRAP_SETTERS = ['setFullYear', 'setMonth', 'setDate', 'setHours', 'setMinutes', 'setSeconds', 'setMilliseconds'];
-
 function utcToLocal (date, timeZone) {
   const tzValues = getTzValues(date, 'UTC');
   const currentValues = getTzValues(date, timeZone);
   const utcValues = tzValues.map((value, idx) => value + (value - currentValues[idx]));
+
   date.setUTCFullYear(...utcValues.slice(0, 3));
   date.setUTCHours(...utcValues.slice(3));
 }
 
-export function createDate (...args) {
+function createDate (...args) {
   if (args.length === 0) {
     return new Date();
   }
@@ -79,10 +86,11 @@ export function createDate (...args) {
         }
 
         if (prop === 'toString') {
-          return () => {
+          return (options) => {
             return date.toLocaleString(options.locale, {
               timeZone: options.timeZone,
-              hour12: false
+              hour12: false,
+              ...options
             });
           };
         }
@@ -107,3 +115,5 @@ export function createDate (...args) {
     }
   });
 }
+
+module.exports = createDate;

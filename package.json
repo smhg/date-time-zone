@@ -3,10 +3,11 @@
   "version": "0.1.0",
   "description": "Date and time manipulation",
   "main": "src/index.js",
+  "module": "src/index.js",
   "scripts": {
     "lint": "eslint src test",
-    "test-timezone1": "export TZ=Europe/Istanbul && export NODE_ICU_DATA=node_modules/full-icu && mocha --require babel-core/register test",
-    "test-timezone2": "export TZ=America/New_York && export NODE_ICU_DATA=node_modules/full-icu && mocha --require babel-core/register test",
+    "test-timezone1": "export TZ=Europe/Istanbul && export NODE_ICU_DATA=node_modules/full-icu && mocha",
+    "test-timezone2": "export TZ=America/New_York && export NODE_ICU_DATA=node_modules/full-icu && mocha",
     "test": "npm run test-timezone1 && npm run test-timezone2"
   },
   "repository": {
@@ -21,12 +22,9 @@
   },
   "homepage": "https://github.com/smhg/date-modify#readme",
   "devDependencies": {
-    "babel-core": "^6.26.3",
-    "babel-preset-env": "^1.7.0",
-    "date-duration": "^1.7.1",
-    "eslint": "^6.0.1",
+    "eslint": "^6.1.0",
     "eslint-config-standard": "^13.0.1",
-    "eslint-plugin-import": "^2.18.1",
+    "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-node": "^9.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.0",

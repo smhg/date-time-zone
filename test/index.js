@@ -1,5 +1,5 @@
-import { createDate } from '../src';
-import assert from 'assert';
+const createDate = require('../src');
+const assert = require('assert');
 
 const timeZone = 'Europe/Brussels';
 
@@ -16,7 +16,6 @@ describe('test()', () => {
     date.setHours(0, 0, 0, 0);
 
     const str = date.toLocaleString('nl-BE', { timeZone, hour12: false });
-    console.log(str);
     assert.strictEqual(str.substr(-8), '00:00:00');
   });
 

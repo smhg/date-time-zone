@@ -1,6 +1,6 @@
 # date-modify
-Create and manipulate timezone specific regular Date objects.
-(~Ab~)uses Intl and Proxy.
+Create and manipulate timezone specific dates as regular Date objects.
+(~Abuses~)Uses [Intl](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl) and [Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy).
 
 ## Example
 ```javascript
