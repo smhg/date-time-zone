@@ -1,7 +1,15 @@
-const createDate = require('../src');
+const { createDate, detectTimeZone } = require('../src');
 const assert = require('assert');
 
 const timeZone = 'Europe/Brussels';
+
+describe('detectTimeZone()', () => {
+  it('should detect system time zone', () => {
+    const tz = detectTimeZone();
+
+    assert.strictEqual(tz, process.env.TZ);
+  });
+});
 
 describe('test()', () => {
   it('should create a regular Date', () => {

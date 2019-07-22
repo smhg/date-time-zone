@@ -32,7 +32,7 @@ function getTzValues (date, timeZone) {
   );
 
   if (parts.size !== 6) {
-    throw new Error(`Unable to retrieve full date for timezone '${timeZone}')`);
+    throw new Error(`Unable to retrieve full date for time zone '${timeZone}')`);
   }
 
   parts.set('month', parts.get('month') - 1);
@@ -116,4 +116,32 @@ function createDate (...args) {
   });
 }
 
-module.exports = createDate;
+function detectTimeZone () {
+  if (typeof Intl !== 'object') {
+    return false;
+  }
+
+  if (typeof Intl.DateTimeFormat !== 'function') {
+    return false;
+  }
+
+  const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
+
+  if (timeZone === undefined || timeZone.length === 0) {
+    return false;
+  }
+
+  try {
+    // Intl.DateTimeFormat needs to support IANA time zone names
+    new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Australia/Sydney',
+      timeZoneName: 'long'
+    }).format();
+  } catch (e) {
+    return false;
+  }
+
+  return timeZone;
+}
+
+module.exports = { createDate, detectTimeZone };
