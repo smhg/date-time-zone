@@ -1,9 +1,18 @@
 # date-modify
-Date and time manipulation
+Create and manipulate timezone specific regular Date objects.
+(~Ab~)uses Intl and Proxy.
 
+## Example
 ```javascript
-modify(date, 'midnight') // set time to 00:00:00
-modify(date, 'midnight')
-add(date, createDuration('P1D')) // date-duration
-subtract(date, createDuration('P1D')) // date-duration
+const timeZone = 'Europe/Berlin';
+createDate({ timeZone }); // now
+
+createDate(2019, 0, 1, { timeZone }); // start of 2019 in Berlin
+
+const date = createDate({ timeZone });
+date.setHours(0, 0, 0, 0);
+console.log(date.toString()); // start of today in Berlin
 ```
+
+## Usage
+Replace `new Date` with `createDate` and add a `{ timeZone: '...' }` object as the last parameter. All other usage is the same as regular Date objects, with manipulations happening in the specified timezone.
