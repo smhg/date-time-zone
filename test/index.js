@@ -36,7 +36,7 @@ describe('test()', () => {
 
   it('should modify local date', () => {
     const date = createDate(2019, 9, 27, 10, 20, 30, { timeZone });
-    date.setHours(0, 0, 0, 0);
+    date.setHours(0, 0, 0, 0); // jumps across DST
 
     const str = date.toLocaleString('nl-BE', { timeZone, hour12: false });
     assert.strictEqual(str, '27/10/2019 00:00:00');
