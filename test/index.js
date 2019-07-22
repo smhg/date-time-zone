@@ -1,40 +1,43 @@
-import modify, { add, subtract, setDefaultTimeZone } from '../src';
-import createDuration from 'date-duration';
+import { createDate } from '../src';
 import assert from 'assert';
 
-describe('modify()', () => {
-  it('should', () => {
-    let date = new Date(Date.UTC(2018, 4, 15, 20, 52, 16));
+const timeZone = 'Europe/Brussels';
 
-    assert.strictEqual(+modify(date, 'midnight'), Date.UTC(2018, 4, 15, 0, 0, 0));
-    assert.strictEqual(+modify(date, 'midnight', 'Europe/Brussels'), Date.parse('2018-05-15 00:00:00+02:00'));
+describe('test()', () => {
+  it('should create a regular Date', () => {
+    const ref = new Date();
+    const date = createDate(ref);
 
-    // accross DST
-    date = new Date(Date.UTC(2018, 2, 25, 20, 52, 16));
-
-    assert.strictEqual(+modify(date, 'midnight'), Date.UTC(2018, 2, 25, 0, 0, 0));
-    assert.strictEqual(+modify(date, 'midnight', 'Europe/Brussels'), Date.UTC(2018, 4, 15, 0, 0, 0));
+    assert.strictEqual(date.toString(), ref.toString());
   });
-});
 
-describe('add()', () => {
-  it('should', () => {
-    const date = new Date(Date.UTC(2018, 4, 14, 20, 52, 16));
+  it('should set local date', () => {
+    const date = createDate(2019, 9, 30, 10, 20, 30, { timeZone });
 
-    assert.strictEqual(+add(date, createDuration('P1D')), Date.UTC(2018, 4, 15, 20, 52, 16));
+    const str = date.toLocaleString('nl-BE', { timeZone, hour12: false });
+    assert.strictEqual(str, '30/10/2019 10:20:30');
   });
-});
 
-describe('subtract()', () => {
-  it('should', () => {
-    const date = new Date(Date.UTC(2018, 4, 14, 20, 52, 16));
+  it('should set relative local date', () => {
+    const date = createDate(2019, 9, -1, 10, 20, 30, { timeZone });
 
-    assert.strictEqual(+subtract(date, createDuration('P1D')), Date.UTC(2018, 4, 13, 20, 52, 16));
+    const str = date.toLocaleString('nl-BE', { timeZone, hour12: false });
+    assert.strictEqual(str, '29/9/2019 10:20:30');
   });
-});
 
-describe('setDefaultTimeZone()', () => {
-  it('should use the default format', () => {
-    setDefaultTimeZone('Europe/Brussels');
+  it('should modify local date', () => {
+    const date = createDate(2019, 9, 30, 10, 20, 30, { timeZone });
+    date.setHours(0, 0, 0, 0);
+
+    const str = date.toLocaleString('nl-BE', { timeZone, hour12: false });
+    assert.strictEqual(str, '30/10/2019 00:00:00');
+  });
+
+  it('should relative modify local date', () => {
+    const date = createDate(2019, 9, 30, 10, 20, 30, { timeZone });
+    date.setDate(-1);
+
+    const str = date.toLocaleString('nl-BE', { timeZone, hour12: false });
+    assert.strictEqual(str, '29/9/2019 10:20:30');
   });
 });
