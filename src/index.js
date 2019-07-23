@@ -1,19 +1,25 @@
+const detectTimeZone = require('./detect');
+
 const DATE_PARTS = ['year', 'month', 'day', 'hour', 'minute', 'second', 'millisecond'];
 const WRAP_SETTERS = ['setFullYear', 'setMonth', 'setDate', 'setHours', 'setMinutes', 'setSeconds', 'setMilliseconds'];
 
-const formatter = {};
+const formatterCache = new Map();
 
 function getFormatter (timeZone) {
-  return formatter[timeZone] || new Intl.DateTimeFormat('en-US', {
-    timeZone,
-    hour12: false,
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-    second: 'numeric'
-  });
+  if (!formatterCache.has(timeZone)) {
+    formatterCache.set(timeZone, new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      hour12: false,
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric'
+    }));
+  }
+
+  return formatterCache.get(timeZone);
 }
 
 function getTzValues (date, timeZone) {
@@ -41,13 +47,21 @@ function getTzValues (date, timeZone) {
   return Array.from(parts.values());
 }
 
+function setValues (date, values) {
+  date.setUTCFullYear(...values.slice(0, 3));
+  date.setUTCHours(...values.slice(3));
+
+  return date;
+}
+
 function utcToLocal (date, timeZone) {
   const tzValues = getTzValues(date, 'UTC');
   const currentValues = getTzValues(date, timeZone);
-  const utcValues = tzValues.map((value, idx) => value + (value - currentValues[idx]));
+  const utcValues = tzValues.map(
+    (value, idx) => value + (value - currentValues[idx])
+  );
 
-  date.setUTCFullYear(...utcValues.slice(0, 3));
-  date.setUTCHours(...utcValues.slice(3));
+  setValues(date, utcValues);
 }
 
 function createDate (...args) {
@@ -81,18 +95,15 @@ function createDate (...args) {
   return new Proxy(date, {
     get: function (date, prop) {
       if (typeof date[prop] === 'function') {
-        if (!options.timeZone || (prop !== 'toString' && !WRAP_SETTERS.includes(prop))) {
+        if (!options.timeZone ||
+          (prop !== 'toString' && !WRAP_SETTERS.includes(prop))) {
           return date[prop].bind(date);
         }
 
         if (prop === 'toString') {
-          return (options) => {
-            return date.toLocaleString(options.locale, {
-              timeZone: options.timeZone,
-              hour12: false,
-              ...options
-            });
-          };
+          return () => date.toLocaleString(options.locale, {
+            timeZone: options.timeZone
+          });
         }
 
         return new Proxy(date[prop], {
@@ -101,8 +112,7 @@ function createDate (...args) {
             const utcValues = getTzValues(date, options.timeZone);
 
             utcValues.splice(idx, args.length, ...args);
-            date.setUTCFullYear(...utcValues.slice(0, 3));
-            date.setUTCHours(...utcValues.slice(3));
+            setValues(date, utcValues);
 
             utcToLocal(date, options.timeZone);
 
@@ -114,34 +124,6 @@ function createDate (...args) {
       return Reflect.get(...arguments);
     }
   });
-}
-
-function detectTimeZone () {
-  if (typeof Intl !== 'object') {
-    return false;
-  }
-
-  if (typeof Intl.DateTimeFormat !== 'function') {
-    return false;
-  }
-
-  const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
-
-  if (timeZone === undefined || timeZone.length === 0) {
-    return false;
-  }
-
-  try {
-    // Intl.DateTimeFormat needs to support IANA time zone names
-    new Intl.DateTimeFormat('en-US', {
-      timeZone: 'Australia/Sydney',
-      timeZoneName: 'long'
-    }).format();
-  } catch (e) {
-    return false;
-  }
-
-  return timeZone;
 }
 
 module.exports = { createDate, detectTimeZone };
