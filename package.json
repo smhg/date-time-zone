@@ -1,7 +1,7 @@
 {
-  "name": "date-modify",
-  "version": "0.1.0",
-  "description": "Date and time manipulation",
+  "name": "date-time-zone",
+  "version": "1.0.0",
+  "description": "Create and manipulate time zone specific dates as regular Date objects.",
   "main": "src/index.js",
   "module": "src/index.js",
   "scripts": {
@@ -12,15 +12,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/smhg/date-modify.git"
+    "url": "git+https://github.com/smhg/date-time-zone.git"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/smhg/date-modify/issues"
+    "url": "https://github.com/smhg/date-time-zone/issues"
   },
-  "homepage": "https://github.com/smhg/date-modify#readme",
+  "homepage": "https://github.com/smhg/date-time-zone#readme",
   "devDependencies": {
     "eslint": "^6.1.0",
     "eslint-config-standard": "^13.0.1",

@@ -1,4 +1,4 @@
-# date-modify
+# date-time-zone
 Create and manipulate time zone specific dates as regular Date objects.
 (~Abuses~)Uses [Intl](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl) and [Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy).
 
@@ -15,4 +15,5 @@ console.log(date.toString()); // start of today in Berlin
 ```
 
 ## Usage
-Replace `new Date` with `createDate` and add a `{ timeZone: '...' }` object as the last parameter. All other usage is the same as regular Date objects, with manipulations happening in the specified time zone.
+When you need to work with a Date instance in another time zone, replace `new Date` with `createDate` and add an options object (`{ timeZone: '...' }`) as the last parameter.
+All other usage is the same as regular Date objects, with manipulations (`setDate`, `setHours`, ...) happening in the specified time zone and `toString()` returning the date and time in the specified time zone.
