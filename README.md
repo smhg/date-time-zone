@@ -1,4 +1,4 @@
-date-time-zone [![Build status](https://api.travis-ci.org/smhg/date-time-zon.png)](https://travis-ci.org/smhg/date-time-zon)
+date-time-zone [![Build status](https://api.travis-ci.org/smhg/date-time-zone.png)](https://travis-ci.org/smhg/date-time-zone)
 ======
 
 Create and manipulate time zone specific dates as regular Date objects.
