@@ -2,13 +2,19 @@
   "name": "date-time-zone",
   "version": "1.0.0",
   "description": "Create and manipulate time zone specific dates as regular Date objects.",
-  "main": "src/index.js",
+  "main": "lib/index.js",
   "module": "src/index.js",
   "scripts": {
     "lint": "eslint src test",
     "test-timezone1": "export TZ=Europe/Istanbul && export NODE_ICU_DATA=node_modules/full-icu && mocha",
     "test-timezone2": "export TZ=America/New_York && export NODE_ICU_DATA=node_modules/full-icu && mocha",
-    "test": "npm run test-timezone1 && npm run test-timezone2"
+    "test": "npm run test-timezone1 && npm run test-timezone2",
+    "build": "babel src -d lib",
+    "clean": "rm -rf lib",
+    "preversion": "npm run lint && npm run test",
+    "postversion": "git push && git push --tags",
+    "prepublishOnly": "npm run lint && npm run test && npm run build",
+    "postpublish": "npm run clean"
   },
   "repository": {
     "type": "git",
@@ -22,6 +28,9 @@
   },
   "homepage": "https://github.com/smhg/date-time-zone#readme",
   "devDependencies": {
+    "@babel/cli": "^7.5.5",
+    "@babel/core": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
     "eslint": "^6.1.0",
     "eslint-config-standard": "^13.0.1",
     "eslint-plugin-import": "^2.18.2",
