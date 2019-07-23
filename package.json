@@ -4,6 +4,12 @@
   "description": "Create and manipulate time zone specific dates as regular Date objects.",
   "main": "lib/index.js",
   "module": "src/index.js",
+  "browserslist": [
+    "last 1 version",
+    "> 1%",
+    "maintained node versions",
+    "not dead"
+  ],
   "scripts": {
     "lint": "eslint src test",
     "test-timezone1": "export TZ=Europe/Istanbul && export NODE_ICU_DATA=node_modules/full-icu && mocha",
