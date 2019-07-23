@@ -1,5 +1,5 @@
 {
-  "name": "date-time-zone",
+  "name": "@smhg/date-time-zone",
   "version": "1.0.0",
   "description": "Create and manipulate time zone specific dates as regular Date objects.",
   "main": "lib/index.js",

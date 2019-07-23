@@ -6,7 +6,7 @@ Create and manipulate time zone specific dates as regular Date objects.
 
 ## Example
 ```javascript
-const { createDate, detectTimeZone } = require('date-time-zone');
+const { createDate, detectTimeZone } = require('@smhg/date-time-zone');
 
 if (!detectTimeZone()) {
   console.warn('Time zones not (fully) supported');
