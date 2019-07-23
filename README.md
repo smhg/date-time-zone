@@ -1,4 +1,6 @@
-# date-time-zone
+date-time-zone [![Build status](https://api.travis-ci.org/smhg/date-time-zon.png)](https://travis-ci.org/smhg/date-time-zon)
+======
+
 Create and manipulate time zone specific dates as regular Date objects.
 (~Abuses~)Uses [Intl](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl) and [Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy).
 
