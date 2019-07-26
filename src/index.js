@@ -1,7 +1,9 @@
 const detectTimeZone = require('./detect');
 
-const DATE_PARTS = ['year', 'month', 'day', 'hour', 'minute', 'second', 'millisecond'];
-const WRAP_SETTERS = ['setFullYear', 'setMonth', 'setDate', 'setHours', 'setMinutes', 'setSeconds', 'setMilliseconds'];
+const DATE_PARTS = ['year', 'month', 'day', 'weekday', 'hour', 'minute', 'second', 'millisecond'];
+const WEEKDAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+const WRAP_SETTERS = ['setFullYear', 'setMonth', 'setDate', 'setDay', 'setHours', 'setMinutes', 'setSeconds', 'setMilliseconds'];
+const WRAP_GETTERS = ['getFullYear', 'getMonth', 'getDate', 'getDay', 'getHours', 'getMinutes', 'getSeconds', 'getMilliseconds'];
 
 const formatterCache = new Map();
 
@@ -13,6 +15,7 @@ function getFormatter (timeZone) {
       year: 'numeric',
       month: 'numeric',
       day: 'numeric',
+      weekday: 'long',
       hour: 'numeric',
       minute: 'numeric',
       second: 'numeric'
@@ -33,11 +36,16 @@ function getTzValues (date, timeZone) {
           DATE_PARTS.indexOf(left.type) - DATE_PARTS.indexOf(right.type)
       )
       .map(
-        ({ type, value }) => [type, parseInt(value, 10)]
+        ({ type, value }) => [
+          type,
+          type === 'weekday'
+            ? WEEKDAYS.indexOf(value.toLowerCase())
+            : parseInt(value, 10)
+        ]
       )
   );
 
-  if (parts.size !== 6) {
+  if (parts.size !== 7) {
     throw new Error(`Unable to retrieve full date for time zone '${timeZone}')`);
   }
 
@@ -49,7 +57,7 @@ function getTzValues (date, timeZone) {
 
 function setValues (date, values) {
   date.setUTCFullYear(...values.slice(0, 3));
-  date.setUTCHours(...values.slice(3));
+  date.setUTCHours(...values.slice(4));
 
   return date;
 }
@@ -93,32 +101,40 @@ function createDate (...args) {
   }
 
   return new Proxy(date, {
-    get: function (date, prop) {
-      if (typeof date[prop] === 'function') {
-        if (!options.timeZone ||
-          (prop !== 'toString' && !WRAP_SETTERS.includes(prop))) {
-          return date[prop].bind(date);
-        }
+    get: function (target, prop) {
+      if (prop === Symbol.toStringTag) {
+        return 'Date';
+      }
 
-        if (prop === 'toString') {
-          return () => date.toLocaleString(options.locale, {
-            timeZone: options.timeZone
+      if (typeof target[prop] === 'function') {
+        if (WRAP_GETTERS.includes(prop)) {
+          return new Proxy(target[prop], {
+            apply: function (fn, proxy, args) {
+              const idx = WRAP_GETTERS.indexOf(prop);
+              const tzValues = getTzValues(target, options.timeZone);
+
+              return tzValues[idx];
+            }
           });
         }
 
-        return new Proxy(date[prop], {
-          apply: function (fn, proxy, args) {
-            const idx = WRAP_SETTERS.indexOf(prop);
-            const utcValues = getTzValues(date, options.timeZone);
+        if (WRAP_SETTERS.includes(prop)) {
+          return new Proxy(target[prop], {
+            apply: function (fn, proxy, args) {
+              const idx = WRAP_SETTERS.indexOf(prop);
+              const utcValues = getTzValues(target, options.timeZone);
 
-            utcValues.splice(idx, args.length, ...args);
-            setValues(date, utcValues);
+              utcValues.splice(idx, args.length, ...args);
+              setValues(target, utcValues);
 
-            utcToLocal(date, options.timeZone);
+              utcToLocal(target, options.timeZone);
 
-            return +date;
-          }
-        });
+              return +target;
+            }
+          });
+        }
+
+        return target[prop].bind(target);
       }
 
       return Reflect.get(...arguments);
