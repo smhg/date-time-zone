@@ -5,6 +5,8 @@ const WEEKDAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'satur
 const WRAP_SETTERS = ['setFullYear', 'setMonth', 'setDate', 'setDay', 'setHours', 'setMinutes', 'setSeconds', 'setMilliseconds'];
 const WRAP_GETTERS = ['getFullYear', 'getMonth', 'getDate', 'getDay', 'getHours', 'getMinutes', 'getSeconds', 'getMilliseconds'];
 
+const systemTimeZone = detectTimeZone();
+
 const formatterCache = new Map();
 
 function getFormatter (timeZone) {
@@ -83,7 +85,7 @@ function createDate (...args) {
     Object.assign(options, args.pop());
   }
 
-  if (!options.timeZone) {
+  if (!options.timeZone || !systemTimeZone) {
     return new Date(...args);
   }
 
