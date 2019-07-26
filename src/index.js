@@ -39,7 +39,7 @@ function getTzValues (date, timeZone) {
         ({ type, value }) => [
           type,
           type === 'weekday'
-            ? WEEKDAYS.indexOf(value.toLowerCase())
+            ? WEEKDAYS.indexOf(value.toLowerCase()) + 1
             : parseInt(value, 10)
         ]
       )
